@@ -5,3 +5,7 @@ import emoji
 import nltk
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 
+# to activate virtual environment
+source env/bin/activate
+python3 -m pip install -r requirements.txt
+python3 -m pip freeze # lists all packages used 
