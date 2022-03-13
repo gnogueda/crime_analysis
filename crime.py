@@ -16,28 +16,20 @@ import plotly.graph_objs as go
 #------------------------------------------------------------------------------
 # Import and clean data
 df = pd.read_csv("crime_data.csv")
-df['State'] = df['State'].fillna(method = 'ffill') 
-
-df = df.sort_values('Population', ascending=False).head(25)
-
-df.drop(df.columns.difference(['State', 'City', 'Population', 'Violentcrime',
-       'Murderandnonnegligentmanslaug', 'Rape1', 'Robbery',
-       'Aggravatedassault', 'Propertycrime', 'Burglary', 'Larcenytheft',
-       'Motorvehicletheft', 'Arson2', 'state_id',
-       'lat', 'lng', 'year']), 1, inplace=True)
-
-# Reshape and clean crime names
-df = df.melt(id_vars =['State', 'City', 'Population', 'state_id','lat',
-                       'lng', 'year']) 
+df = df[df.large_city == 1]
+df = df.melt(id_vars =['state', 'city', 'population', 'year', 'state_city', 
+                       'lat', 'lng', 'population_sm', 'density', 'large_city']) 
 df = df.rename(columns = {"variable": "type_crime", "value": "number_crimes"})
-df = df.replace({'Violentcrime': 'Violent crime',
-            'Murderandnonnegligentmanslaug': 'Murder and nonnegligent manslaughter', 
-            'Rape1': 'Rape',
-            'Aggravatedassault': 'Aggravated assault', 
-            'Propertycrime': 'Property crime',
-            'Larcenytheft': 'Larceny theft',
-            'Motorvehicletheft': 'Motor vehicle theft',
-            'Arson2': 'Arson'})
+df = df.replace({'violentcrime': 'Violent crime',
+            'murderandnonnegligentmanslaug': 'Murder and nonnegligent manslaughter', 
+            'rape': 'Rape',
+            'robbery': 'Robbery',
+            'aggravatedassault': 'Aggravated assault', 
+            'propertycrime': 'Property crime',
+            'burglary': 'burglary',
+            'larcenytheft': 'Larceny theft',
+            'motorvehicletheft': 'Motor vehicle theft',
+            'arson': 'Arson'})
 blackbold={'color':'black', 'font-weight': 'bold'}
 
 #------------------------------------------------------------------------------
@@ -94,10 +86,11 @@ def update_figure(chosen_crime,chosen_year):
     locations=[go.Scattermapbox(
                     lon = df_sub['lng'],
                     lat = df_sub['lat'],
+                    #color = df_sub['number_crimes'],
                     mode='markers',
                     unselected={'marker' : {'opacity':1, 'size':10}},
                     selected={'marker' : {'opacity':0.5, 'size':40}},
-                    hovertext=(df_sub['City'])
+                    hovertext=(df_sub['number_crimes'])
 
     )]
 
