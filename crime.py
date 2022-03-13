@@ -2,26 +2,21 @@
 Dash application
 '''
 
-# This token could be in another file and call it 
 mapbox_access_token = 'pk.eyJ1IjoiZ25vZ3VlZGEiLCJhIjoiY2wwa2Q4ZW1xMGZyaTNlbmVnMDJydHRvcCJ9.d17UBC8JGh_xhi29OHym0w'
 
 import pandas as pd
-import numpy as np
 import dash
-import dash_table
+from dash import dcc 
 import dash_core_components as dcc
+from dash import html
 import dash_html_components as html
 from dash.dependencies import Input, Output
-import plotly.offline as py
 import plotly.graph_objs as go
 
+#------------------------------------------------------------------------------
+# Import and clean data
 df = pd.read_csv("crime_data.csv")
 df['State'] = df['State'].fillna(method = 'ffill') 
-
-# [erase] Alex, NY, for example, is missing from the dataset and this code (ffill)
-# [erase] to fill the values from the first column won't work, I would suggest not to  
-# [erase] repeat variables and getting the dataset as clean as possible before this 
-# [erase] stage
 
 df = df.sort_values('Population', ascending=False).head(25)
 
@@ -45,7 +40,7 @@ df = df.replace({'Violentcrime': 'Violent crime',
             'Arson2': 'Arson'})
 blackbold={'color':'black', 'font-weight': 'bold'}
 
-
+#------------------------------------------------------------------------------
 # Application layout
 app = dash.Dash(__name__)
 app.layout = html.Div([
@@ -85,15 +80,15 @@ app.layout = html.Div([
 ], className='ten columns offset-by-one'
 )
 
-#---------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Output of Graph
 @app.callback(Output('graph', 'figure'),
               [Input('crimes', 'value'),
                Input('year_id', 'value')])
 
-def update_figure(chosen_boro,chosen_recycling):
-    df_sub = df[(df['type_crime'].isin(chosen_boro)) &
-                (df['year'].isin(chosen_recycling))]
+def update_figure(chosen_crime,chosen_year):
+    df_sub = df[(df['type_crime'].isin(chosen_crime)) &
+                (df['year'].isin(chosen_year))]
 
     # Create figure
     locations=[go.Scattermapbox(
@@ -129,6 +124,6 @@ def update_figure(chosen_boro,chosen_recycling):
         )
     }
 
-
+#------------------------------------------------------------------------------
 if __name__ == '__main__':
     app.run_server(debug=False)
