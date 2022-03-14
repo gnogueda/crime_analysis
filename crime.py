@@ -4,7 +4,6 @@ Dash application
 mapbox_access_token = 'pk.eyJ1IjoiZ25vZ3VlZGEiLCJhIjoiY2wwa2Q4ZW1xMGZyaTNlbmVnMDJydHRvcCJ9.d17UBC8JGh_xhi29OHym0w'
 
 import pandas as pd
-import dash
 from dash import Dash, dcc, html, Input, Output
 import plotly.graph_objs as go
 import plotly.express as px
@@ -32,7 +31,7 @@ blackbold={'color':'black', 'font-weight': 'bold'}
 
 #------------------------------------------------------------------------------
 # Application layout
-app = dash.Dash(__name__)
+app = Dash(__name__)
 app.layout = html.Div(
     children=[
 
@@ -44,11 +43,11 @@ app.layout = html.Div(
                  value=['Violent crime'],
                  style={'width': "50%"}),
 
-    # dcc.Dropdown(id='year_dropdown',
-    #              options=[{'label':str(b),'value':b} for b in sorted(df['year'].unique())],
-    #              multi=False,
-    #              value=['2015'],
-    #              style={'width': "40%"}),
+    dcc.Dropdown(id='year_dropdown',
+                  options=[{'label':str(b),'value':b} for b in sorted(df['year'].unique())],
+                  multi=False,
+                  value=['2015'],
+                  style={'width': "40%"}),
     
     html.Div([dcc.Graph(id="graph_output", figure={}, 
         style={'padding-bottom':'2px','padding-left':'2px','height':'90vh'})])
@@ -60,16 +59,17 @@ app.layout = html.Div(
 
 @app.callback(
     Output("graph_output", "figure"),
-    [Input("crime_dropdown", "value")] #, Input("year_dropdown", "value")
+    [Input("crime_dropdown", "value"), 
+     Input("year_dropdown", "value")]
 )
 
-def update_figure(selected_crime):
-    # print(f"Value user chose crime: {selected_crime}")
-    # print(f"Value user chose year: {selected_year}")
-    # df_filtered = df[df["type_crime"].isin(selected_crime)] & df[df["year"].isin(selected_year)]
-    # print(df_filtered)
+def update_figure(selected_crime, selected_year):
     
-    df_filtered = df[df["type_crime"].isin(selected_crime)]
+    print(f"Value user chose crime: {selected_crime}")
+    print(f"Value user chose year: {selected_year}")
+    
+    df_filtered = df.loc[df["type_crime"].isin(selected_crime) & df["year"].isin(selected_year)]
+
     fig = px.scatter_mapbox(df_filtered,
                             lat = "lat",
                             lon = "lng",
