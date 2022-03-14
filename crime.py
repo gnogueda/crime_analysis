@@ -1,17 +1,14 @@
 '''
 Dash application
 '''
-
 mapbox_access_token = 'pk.eyJ1IjoiZ25vZ3VlZGEiLCJhIjoiY2wwa2Q4ZW1xMGZyaTNlbmVnMDJydHRvcCJ9.d17UBC8JGh_xhi29OHym0w'
 
 import pandas as pd
 import dash
-from dash import dcc 
-import dash_core_components as dcc
-from dash import html
-import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash import Dash, dcc, html, Input, Output
 import plotly.graph_objs as go
+import plotly.express as px
+MAPBOX_ACCESS_TOKEN = 'pk.eyJ1IjoiZ25vZ3VlZGEiLCJhIjoiY2wwa2Q4ZW1xMGZyaTNlbmVnMDJydHRvcCJ9.d17UBC8JGh_xhi29OHym0w'
 
 #------------------------------------------------------------------------------
 # Import and clean data
@@ -26,97 +23,79 @@ df = df.replace({'violentcrime': 'Violent crime',
             'robbery': 'Robbery',
             'aggravatedassault': 'Aggravated assault', 
             'propertycrime': 'Property crime',
-            'burglary': 'burglary',
+            'burglary': 'Burglary',
             'larcenytheft': 'Larceny theft',
             'motorvehicletheft': 'Motor vehicle theft',
             'arson': 'Arson'})
+df['year'] = df['year'].astype(str)
 blackbold={'color':'black', 'font-weight': 'bold'}
 
 #------------------------------------------------------------------------------
 # Application layout
 app = dash.Dash(__name__)
-app.layout = html.Div([
+app.layout = html.Div(
+    children=[
 
-    html.Div([
-        html.Div([
+    html.H1("Crime in the major cities of USA, 2015-2019", style={'text-align': 'center'}),
+   
+    dcc.Dropdown(id='crime_dropdown',
+                 options=[{'label':str(b),'value':b} for b in sorted(df['type_crime'].unique())],
+                 multi=False,
+                 value=['Violent crime'],
+                 style={'width': "50%"}),
 
-            # Crimes checklist
-            html.Label(children=['Type of crime: '], style=blackbold),
-            dcc.Checklist(id='crimes',
-                    options=[{'label':str(b),'value':b} for b in sorted(df['type_crime'].unique())],
-                    value=[b for b in sorted(df['type_crime'].unique())],
-            ),
+    # dcc.Dropdown(id='year_dropdown',
+    #              options=[{'label':str(b),'value':b} for b in sorted(df['year'].unique())],
+    #              multi=False,
+    #              value=['2015'],
+    #              style={'width': "40%"}),
+    
+    html.Div([dcc.Graph(id="graph_output", figure={}, 
+        style={'padding-bottom':'2px','padding-left':'2px','height':'90vh'})])
 
-            # Year checklist
-            html.Label(children=['Year: '], style=blackbold),
-            dcc.Checklist(id='year_id',
-                    options=[{'label':str(b),'value':b} for b in sorted(df['year'].unique())],
-                    value=[b for b in sorted(df['year'].unique())],
-            ),
-
-
-        ], className='three columns'
-        ),
-
-        # Map
-        html.Div([
-            dcc.Graph(id='graph', config={'displayModeBar': False, 'scrollZoom': True},
-                style={'padding-bottom':'2px','padding-left':'2px','height':'100vh'}
-            )
-        ], className='nine columns'
-        ),
-
-    ], className='row'
-    ),
-
-], className='ten columns offset-by-one'
-)
+])
 
 #------------------------------------------------------------------------------
-# Output of Graph
-@app.callback(Output('graph', 'figure'),
-              [Input('crimes', 'value'),
-               Input('year_id', 'value')])
+# Display map
 
-def update_figure(chosen_crime,chosen_year):
-    df_sub = df[(df['type_crime'].isin(chosen_crime)) &
-                (df['year'].isin(chosen_year))]
+@app.callback(
+    Output("graph_output", "figure"),
+    [Input("crime_dropdown", "value")] #, Input("year_dropdown", "value")
+)
 
-    # Create figure
-    locations=[go.Scattermapbox(
-                    lon = df_sub['lng'],
-                    lat = df_sub['lat'],
-                    #color = df_sub['number_crimes'],
-                    mode='markers',
-                    unselected={'marker' : {'opacity':1, 'size':10}},
-                    selected={'marker' : {'opacity':0.5, 'size':40}},
-                    hovertext=(df_sub['number_crimes'])
-
-    )]
-
-    # Return figure
-    return {
-        'data': locations,
-        'layout': go.Layout(
-            uirevision= 'foo', #preserves state of figure/map after callback activated
-            clickmode= 'event+select',
-            hovermode='closest',
-            hoverdistance=2,
-            title=dict(text="Crime in major cities of USA, 2015-2019",font=dict(size=50, color='black')),
-            mapbox=dict(
-                accesstoken=mapbox_access_token,
-                bearing=0,
-                style='light',
-                center=dict(
-                    lat=37,
-                    lon=-100
-                ),
-                pitch=0,
-                zoom=3
+def update_figure(selected_crime):
+    # print(f"Value user chose crime: {selected_crime}")
+    # print(f"Value user chose year: {selected_year}")
+    # df_filtered = df[df["type_crime"].isin(selected_crime)] & df[df["year"].isin(selected_year)]
+    # print(df_filtered)
+    
+    df_filtered = df[df["type_crime"].isin(selected_crime)]
+    fig = px.scatter_mapbox(df_filtered,
+                            lat = "lat",
+                            lon = "lng",
+                            color = 'number_crimes',
+                            color_continuous_scale=px.colors.cyclical.IceFire,
+                            size_max = 40,
+                            zoom = 10,
+                            hover_name = 'city',
+                            size = 'population',
+                            hover_data = ['population'])
+    
+    fig.update_layout(
+        hovermode='closest',
+        mapbox=dict(
+            accesstoken=MAPBOX_ACCESS_TOKEN,
+            bearing=0,
+            center=go.layout.mapbox.Center(
+                lat=37,
+                lon=-100
             ),
+            pitch=0,
+            zoom=3
         )
-    }
-
+    )
+ 
+    return fig
 #------------------------------------------------------------------------------
 if __name__ == '__main__':
     app.run_server(debug=False)
