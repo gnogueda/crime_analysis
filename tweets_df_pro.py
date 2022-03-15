@@ -6,10 +6,6 @@ This file:
 
 '''
 
-nltk.download('vader_lexicon')
-nltk.download('stopwords')
-nltk.download('punkt')
-
 import numpy as np
 import re
 import twint
@@ -21,6 +17,9 @@ import glob
 import shutil
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 import nltk
+nltk.download('vader_lexicon')
+nltk.download('stopwords')
+nltk.download('punkt')
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
@@ -29,12 +28,14 @@ nest_asyncio.apply() # for working in jupyter notebooks
 stopwords = stopwords.words('english')
 stopwords = set(stopwords)
 
-def tweets_processing(output_filename):
+# tdp.tweets_processing("tweets_output_vt", "2021") ############# year must be a string
+def tweets_processing(output_filename, year):
     df = tweets_df()
+    df = df[df['date'].str.slice(stop=4) == year]
     clean_all_tweets(df)
     tweets_clustering(clust_cat, df)
     sentiment(df)
-    df.to_csv(os.path.join('./', f'{output_filename}.csv'))
+    df.to_csv(os.path.join('./', f'{output_filename}{year}.csv'))
 
 
 ######################## Create a data frame of the Tweets ########################
@@ -93,7 +94,7 @@ cougar hysteria female whore parasites nationalist nationalism patriotism misogy
 frigid man-eater prude mumsy neurotic hysteria pregnant abortion rights civil tomboy catfight botchfest
 sissy effeminate fear bullying bully bisexual homo homophobic limp-wristed dyke flamer sod sodomite twink
 lesbo fairy poof drag pansy antipathy detest abhor disgust disgusting pussy empathy antipathy aversion
-hijab camel sand hitler lynch lynching
+hijab camel sand hitler lynch lynching mexican
 '''
 
 guns = '''gun guns shot shoot shooting load rifle bullet target aim control regulation law misfire ballistic
@@ -133,7 +134,7 @@ herb bash flake snow powder blue tranqs chalk health addiction hospital hospital
 needle vessels na aa 12 steps twelve steps addicted addictive gateway
 '''
 
-clust_cat = [hate, guns, crimes, addictions]
+clust_cat = {'hate' : hate, 'guns' : guns, 'crimes' : crimes, 'addictions' : addictions}
 
 #def get_vectors(*strs):
 #    '''Vectorizing the sets of words, then standardizing them. TFIDF will be used in order to take care of the least 
@@ -163,7 +164,7 @@ def get_scores(group,tweets):
 def tweets_clustering(clust_cat, df):
     df['Score_cat'] = 0
     df['Category'] = None
-    for cat in clust_cat:
+    for cat, voc in clust_cat.items():
         #vect = get_vectors(cat)
 
         ## Vectorizing the tweets
@@ -172,21 +173,29 @@ def tweets_clustering(clust_cat, df):
         # tweets_bowl.head()
         #tfidf_tweets = tv.fit_transform(df.tweet) ########## ver si se ocupa o bye
 
-        df[cat] = get_scores(cat, df.tweet.to_list())
-        df['Score_cat'] = max(df['Score_cat'], df[cat])
-        df['Category'][df['Score_cat'] == df[cat]] = cat
+        df[cat] = get_scores(voc, df.tweet.to_list())
+        df['Score_cat'] = df[['Score_cat', cat]].max(axis = 1)
+        df['Category'][df['Score_cat'] == df[cat]] = cat ############
         
+#df1 = pd.DataFrame({'name': ['Raphael', 'Donatello'], 'mask': ['2016-12-02', '2014-12-02'],'weapon': [1, 10]})
+#df1['Score_cat'] = df1[['mask', 'weapon']].max(axis=1)
+#df1['Category'] = None
+#df1['Category'][df['Score_cat'] == df['mask']] = "hey"
 
 ######################## Sentiment Analysis section ########################
 
 def sentiment(df): 
     sid = SentimentIntensityAnalyzer() # Calculate neutral, negative and positive sentiment scores and label tweet with highest sentiment 
-    df['sentiment'] = np.nan
+    df['sentiment'] = None #np.nan
     for idx, tweet in enumerate(df['tweet']):
         sentiment_dict = sid.polarity_scores(tweet)
         sentiment_names = ('Negative', 'Positive', 'Neutral')
         sentiment_tup = (sentiment_dict['neg'], sentiment_dict['pos'], sentiment_dict['neu'])
-        if np.any(sentiment_tup) > 0.0: # if all values are 0, leave label as nan 
+        if np.any(sentiment_tup) > 0.0: # if all values are 0, leave label as nan #########
             index = sentiment_tup.index(max(sentiment_tup))
-            df['sentiment'][idx] = sentiment_names[index] 
-
+            #print(index)
+            #print(idx)
+            df['sentiment'].iloc[[idx]] = sentiment_names[index] ############
+            #print(df['sentiment'][idx])
+    df['Tweets'] = df['tweet']
+    df.drop(['tweet'], axis = 1, inplace = True)
