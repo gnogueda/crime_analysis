@@ -79,16 +79,58 @@ def clean_tweet(tweet):
     return temp
 
 ######################## Clustering section ########################
-hate = ''' racism nigger blacky uppity sexism bitch cunt bimbo feminazi homophobia fag faggot homo
+hate = ''' racism nigger blacky uppity sexism bitch cunt bimbo feminazi homophobia fag faggot homo black
+racism racist bigotry blm caucusing blackness colonization white whites supremacist blacks poc appropiation
+culture genocide diaspora anti semitic zionist jew jews discrimination superiority diversity speech ethnic
+ethnicity indigenity indigenous native american english spanish language country tolerance intolerance
+dominance intersectionality marginalization beans border foreign minority woman women people oppression
+power prejudice race racial identity equity racialization reparations social muslim arabs chinese asian asians
+nigga privilege supremacy xenophobia kkk ku klux klan pig abbie abe abie afro african colored karen
+ape jemima beaner beaney bluegum bootlip brownie buddhahead indian burr ching ching coconut coon cracker
+crow greaser jap jewboy nip oreo rastus sambo latinos latino wetback natzi sheeny snowflake wigger wigga
+trash wop zipperhead gay lesbian lgbt queer shemale tranny trans cuntboy chic radical digger bitches slut
+cougar hysteria female whore parasites nationalist nationalism patriotism misogyny mannish bitchy hate diva
+frigid man-eater prude mumsy neurotic hysteria pregnant abortion rights civil tomboy catfight botchfest
+sissy effeminate fear bullying bully bisexual homo homophobic limp-wristed dyke flamer sod sodomite twink
+lesbo fairy poof drag pansy antipathy detest abhor disgust disgusting pussy empathy antipathy aversion
+hijab camel sand hitler lynch lynching
 '''
 
-guns = '''gun guns 
+guns = '''gun guns shot shoot shooting load rifle bullet target aim control regulation law misfire ballistic
+firearm firearms act 1968 owners protection private property weapons assault ban second amendment national association
+lives march gunowners america automatic semiautomatic caliber brady handgun mass gunman bump stocks binary
+trigger pistol pistols shooters school suppressor high capacity reload killer suicide ak ak-47 ar-65 trigger
+bullets bulletproof barrel machine-gun laws prohibition permit purchase unlicensed mental illness background
+check records dealer registration advocates gunshot massacre columbine discharging unarmed hostage tragedy
+slaughter annihilation shooter sniper marksman accident gunner piece rod heater revolver derringer fatal
+fatality killed kills death headshot execution execute puller gun-owners license nra sandyhook common sense
+roght bear self-defense pulse arms
 '''
 
-crimes = '''disease 
+crimes = '''police ribber kidnap assault mug mugger mugging murder murderer killer violent crime robber
+robbery attack rape rapist hurt injur victim justice aggresor hijack hijacker punch hit assasin attack
+harm arrest crimes criminal abduction assassination burglar burglary homicide hooliganism theft
+looting manslaughter pickpocketing trespassing lynching victim accomplice offender harrasment harras
+fbi first degree felony malice aforethought unlawful kill premeditation aggravate permissive strangulation
+strangulate poisoning terminatins harm detrimental punishment prison jail deliberation life sexual
+pedophile pederast perpetrator abuse violence cash wallet phone laptop computer belongings money guilt
+guilty larceny threat wound battery weapon gun shot knife car force intercourse gang invasion consent
+ravish violate rob loot bang
 '''
 
-addictions = '''disease 
+addictions = '''drugs alcohol tobacco smoking cigarrette cigar joint snuff addict junk disease drugging rehab
+rehabilitation trafficking narco narcotics inject substance marijuana smoker rolling paper roach clip dealer
+drinker social drink hallucinate hallucinogen beer cocaine coke crack coca narc hooka hash liquor liqueur pot
+weed grass dope pass kilo heroin fentanyl od overdose mescaline nark size popper depressant deviant pusher
+tranquilizer peyote therapy amphentanile angel dust tequila scotch whiskey gin vodka rum alcoholic anonymous
+party pipe push lsd pills ecstasy tonic clean sniff line mainline cook methamphetamine meth crank steroid
+pass bottom out drunkard blackout pot-head stoned dependent dependency cut columbian downer flashback
+amphentamine cocktail depressant teetotaler screwdriver roll bong chug prescription prescribe pharmacist
+toke symptom hangover paraphernalia bennie hypodermic caffeine habit mushrooms bar snort stimulant glue
+relapse abstinence street sniff smack drunkard pill tolerance therapy champagne sober spoon opium opioid
+lid bust boost booze intervention rolling abuse treatment brandy illegal crystal acid green gold
+herb bash flake snow powder blue tranqs chalk health addiction hospital hospitalize hospitalise clinic
+needle vessels na aa 12 steps twelve steps addicted addictive gateway
 '''
 
 clust_cat = [hate, guns, crimes, addictions]

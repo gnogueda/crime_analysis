@@ -17,11 +17,12 @@ from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
 nest_asyncio.apply() # for working in jupyter notebooks
 
+# td.tweets_scraping(td.viol_voc)
 cities = ["austin"]
 #cities = ["new york city", "los angeles", "chicago", "houston", "phoenix",
 #"san antonio", "philadelphia", "san diego", "dallas", "austin"]
 save_dir = './'
-year = 2019
+year = 2016
 monthhh = 1  # lo normal es 1, se refiere al mes en el que empieza
 indices = [1] # lo normal es [0, 1]
 #cities = ["new york city", "los angeles", "chicago", "houston", "phoenix",
