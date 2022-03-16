@@ -5,18 +5,17 @@ This file:
     -Sentiment analysis
 
 Functions: 
-    -tweets_processing(input_directory_name, output_filename, year)
-    -tweets_df(input_directory_name)
-    -clean_tweet(tweet)
-    -clean_all_tweets(frame)
-    -jaccard_similarity(query, document)
-    -get_scores(group,tweets)
-    -tweets_clustering(clust_cat, df)
-    -sentiment(df)
+    -tweets_processing
+    -tweets_df
+    -clean_tweet
+    -clean_all_tweets
+    -jaccard_similarity
+    -get_scores
+    -tweets_clustering
+    -sentiment
     
-Note: Twitter attempts to block twint from pulling data continuously. 
-    Therefore, we needed to disaggregate our twitter pulling by year, 
-    rather than for all years at one time. 
+Note: We process the tweets by year otherwise python terminates 
+    our code because it is too much data at one time 
 '''
 
 import numpy as np
