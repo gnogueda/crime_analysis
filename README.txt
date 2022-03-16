@@ -26,9 +26,9 @@ crime_sentiment
 -__main__.py
 -__pycache__
 -Capptivators Paper
+-proj-structure
 -app.py
 -dashboard
--proj-structure
     -crime.py
 -data
     -fbi
