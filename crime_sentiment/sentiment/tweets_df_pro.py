@@ -66,7 +66,8 @@ def tweets_processing(input_directory_name, output_filename, year):
     tweets_clustering(clust_cat, df)
     sentiment(df)
     #df.to_csv(os.path.join('./', f'{output_filename}{year}.csv'))
-    df.to_csv(save_dir, f'{output_filename}{year}.csv'))
+    #df.to_csv(save_dir, f'{output_filename}{year}.csv')
+    df.to_csv(os.path.join(save_dir, f'{output_filename}{year}.csv'))
 
 
 
