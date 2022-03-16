@@ -1,4 +1,4 @@
-from proj_capptivators import crime
+from crime_sentiment import app
 
 if __name__ == '__main__':
-    crime.run()
+    app.run()
