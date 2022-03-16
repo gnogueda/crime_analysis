@@ -35,6 +35,7 @@ crime_sentiment
         -aggregated_results
         -sentiment_disaggregated_results
         -tweets_downloads
+        -tweets_downloads_test
     -fbi_twitter_merge
         -crime_data.csv
 -sentiment
