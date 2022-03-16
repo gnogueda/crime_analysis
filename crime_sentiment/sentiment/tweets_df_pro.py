@@ -28,8 +28,12 @@ nest_asyncio.apply() # for working in jupyter notebooks
 stopwords = stopwords.words('english')
 stopwords = set(stopwords)
 
+save_dir = os.path.abspath(os.path.join(__file__ ,"../..")) + "/data/twitter/sentiment_disaggregated_results/"
+save_dir = os.path.abspath(os.path.join(__file__ ,"../..")) + "/data/twitter/sentiment_disaggregated_results/"
+
+
 # tdp.tweets_processing("tweets_output", "2017") ############# year must be a string
-def tweets_processing(output_filename, year):
+def tweets_processing(input_directory_name, output_filename, year):
     df = tweets_df()
     df = df[df['date'].str.slice(stop=4) == year]
     clean_all_tweets(df)
