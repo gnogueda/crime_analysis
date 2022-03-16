@@ -27,6 +27,7 @@ crime_sentiment
 -__pycache__ 
 -app.py
 -dashboard
+-proj-structure
     -crime.py
 -data
     -fbi
