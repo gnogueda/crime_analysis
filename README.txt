@@ -11,6 +11,12 @@ To run the app:
 (3) From the crime_sentiment folder, run: python3 -m crime_sentiment
 (4) Dashboard will display on http://127.0.0.1.8051/
 
+To *just* scrape tweets:
+
+Use: twitter_data.tweets_scraping(twitter_data.viol_voc, day1, month1, year1, day2, month2, year2)
+(1) import twitter_data
+(2) twitter_data.tweets_scraping(td.viol_voc, 1, 1, 2017, 4, 1, 2017)
+
 
 
 Structure of the app: 
