@@ -23,28 +23,51 @@ nltk.download('punkt')
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
+nest_asyncio.apply() 
 
-nest_asyncio.apply() # for working in jupyter notebooks
 stopwords = stopwords.words('english')
 stopwords = set(stopwords)
 
 save_dir = os.path.abspath(os.path.join(__file__ ,"../..")) + "/data/twitter/sentiment_disaggregated_results/"
-save_dir = os.path.abspath(os.path.join(__file__ ,"../..")) + "/data/twitter/sentiment_disaggregated_results/"
+dir = os.path.abspath(os.path.join(__file__ ,"../.."))
 
 
 # tdp.tweets_processing("tweets_output", "2017") ############# year must be a string
 def tweets_processing(input_directory_name, output_filename, year):
-    df = tweets_df()
+    '''
+    Function to incorporate cleaning, clustering and sentiment on all 
+    tweets
+    
+    Inputs: input_directory_name (str): folder within /data/twitter/ where 
+                you would like to pull in your twitter data 
+            output_filename (str): filename you would like for your output
+            year (str): year of interest, used to sort data and in your output 
+                filename
+            
+    Output: csv saved with your output to the directory specified
+    '''
+    df = tweets_df(input_directory_name)
     df = df[df['date'].str.slice(stop=4) == year]
     clean_all_tweets(df)
     tweets_clustering(clust_cat, df)
     sentiment(df)
-    df.to_csv(os.path.join('./', f'{output_filename}{year}.csv'))
+    #df.to_csv(os.path.join('./', f'{output_filename}{year}.csv'))
+    df.to_csv(save_dir, f'{output_filename}{year}.csv'))
 
 
-######################## Create a data frame of the Tweets ########################
-def tweets_df():
-    path = './' + "tweets_downloads2"# use your path
+
+######################## Create a DataFrame of the Tweets ########################
+def tweets_df(input_directory_name):
+    '''
+    Merge all tweets and format them 
+    
+    Inputs: input_directory_name (str): folder within /data/twitter/ where 
+        you would like to pull in your twitter data 
+         
+    Output (df): all files of interest merged and with initial pre-processing 
+        complete
+    '''
+    path = dir + f"/data/twitter/{input_directory_name}"# use your path
     all_files = glob.glob(path + "/*.csv")
 
     files_data = []
@@ -56,34 +79,50 @@ def tweets_df():
     dframe = pd.concat(files_data, axis=0, ignore_index=True)
     dframe = dframe[['id', 'date', 'time', 'near', 'tweet']]
     dframe = dframe.set_index('id')
-    dframe = dframe.drop_duplicates() # if it's slow try with subset inside drop_duplicates
-    # Delete the folder and its files.
-    #shutil.rmtree(path) ####### This will go to the final version
+    dframe = dframe.drop_duplicates() 
 
     return dframe
 
 ######################## Cleaning section ########################
 
-def clean_all_tweets(frame):
-    frame['tweet'] = frame['tweet'].map(lambda x: clean_tweet(x))
-
 def clean_tweet(tweet):
+    '''
+    Function to incorporate do 'deep cleaning' on tweet - strip away 
+    punctuation, emojis and take out commonly used english words
+    
+    Inputs: tweet (str): tweet you would like to clean 
+    
+    Output: cleaned tweet 
+    '''
     if type(tweet) == np.float:
         return ""
-    temp = tweet.lower()
-    temp = re.sub("'", "", temp) # to avoid removing contractions in english
-    temp = re.sub("@[A-Za-z0-9_]+","", temp)
-    temp = re.sub("#[A-Za-z0-9_]+","", temp)
-    temp = re.sub(r'http\S+', '', temp)
-    temp = re.sub('[()!?]', ' ', temp)
-    temp = re.sub('\[.*?\]',' ', temp)
-    temp = re.sub("[^a-z0-9]"," ", temp)
-    temp = temp.split()
-    temp = [w for w in temp if not w in stopwords]
-    temp = " ".join(word for word in temp)
-    return temp
+    clean_tweet = tweet.lower()
+    clean_tweet = re.sub("'", "", clean_tweet) # to avoid removing contractions in english
+    clean_tweet = re.sub("@[A-Za-z0-9_]+","", clean_tweet)
+    clean_tweet = re.sub("#[A-Za-z0-9_]+","", clean_tweet)
+    clean_tweet = re.sub(r'http\S+', '', clean_tweet)
+    clean_tweet = re.sub('[()!?]', ' ', clean_tweet)
+    clean_tweet = re.sub('\[.*?\]',' ', clean_tweet)
+    clean_tweet = re.sub("[^a-z0-9]"," ", clean_tweet)
+    clean_tweet = clean_tweet.split()
+    clean_tweet = [w for w in clean_tweet if not w in stopwords]
+    clean_tweet = " ".join(word for word in clean_tweet)
+    return clean_tweet
 
-######################## Clustering section ########################
+def clean_all_tweets(frame):
+    '''
+    Clean all tweets in df
+    
+    Inputs: frame (df): df with tweets you would like to clean in place
+    
+    Output: df with cleaned tweets in 'tweet' column
+    '''
+    frame['tweet'] = frame['tweet'].map(lambda x: clean_tweet(x))
+
+######################## Clustering section #####################################
+
+# Create 4 corpus' on which to base our NLP algorithm for clustering 
+
 hate = ''' racism nigger blacky uppity sexism bitch cunt bimbo feminazi homophobia fag faggot homo black
 racism racist bigotry blm caucusing blackness colonization white whites supremacist blacks poc appropiation
 culture genocide diaspora anti semitic zionist jew jews discrimination superiority diversity speech ethnic
@@ -140,25 +179,29 @@ needle vessels na aa 12 steps twelve steps addicted addictive gateway
 
 clust_cat = {'hate' : hate, 'guns' : guns, 'crimes' : crimes, 'addictions' : addictions}
 
-#def get_vectors(*strs):
-#    '''Vectorizing the sets of words, then standardizing them. TFIDF will be used in order to take care of the least 
-#    frequent words. Standardizing is cause TFIDF favors long sentences and there'll be inconsistencies between the length 
-#    of the tweets and the length of set of words.'''
-#    text = [t for t in strs]
-#    vectorizer = TfidfVectorizer(text)
-#    vectorizer.fit(text)
-#    return vectorizer.transform(text).toarray()
-
-'''Jaccard similarity is good for cases where duplication does not matter, 
-cosine similarity is good for cases where duplication matters while analyzing text similarity. For two product descriptions, 
-it will be better to use Jaccard similarity as repetition of a word does not reduce their similarity.'''
 
 def jaccard_similarity(query, document):
+    '''
+    Calculate jaccard similarity score on a string based for a given category 
+    
+    Inputs: query (list): corpus of words for category
+            document (str): string you want a jaccard similarity score for 
+            
+    Output: jaccard similarity score of tweet
+    '''
     intersection = set(query).intersection(set(document))
     union = set(query).union(set(document))
     return len(intersection)/len(union)
 
 def get_scores(group,tweets):
+    '''
+    Calculate jaccard similarity for list of tweets
+    
+    Inputs: group (list): corpus of words for category
+            tweet (str): tweet you want a jaccard similarity score for 
+            
+    Output: list of scores
+    '''
     scores = []
     for tweet in tweets:
         s = jaccard_similarity(group, tweet)
@@ -166,40 +209,43 @@ def get_scores(group,tweets):
     return scores
 
 def tweets_clustering(clust_cat, df):
+    '''
+    Categorize each tweet into the category with the highest 
+    jaccard similarity score 
+    
+    Inputs: cluster_cat (dict): dictionary of categories with their corpus'
+            df (df): df with tweets that you would like to categorize given 
+                their scores for different categories
+            
+    Output: df updated in place to include categories for each tweet
+    '''
     df['Score_cat'] = 0
     df['Category'] = None
     for cat, voc in clust_cat.items():
-        #vect = get_vectors(cat)
-
-        ## Vectorizing the tweets
-        #tv = TfidfVectorizer() ############### ver si se ocupa o bye
-        # tweets_bowl = tweets_bowl.tweets.apply(get_vectors)
-        # tweets_bowl.head()
-        #tfidf_tweets = tv.fit_transform(df.tweet) ########## ver si se ocupa o bye
-
         df[cat] = get_scores(voc, df.tweet.to_list())
         df['Score_cat'] = df[['Score_cat', cat]].max(axis = 1)
-        df['Category'][df['Score_cat'] == df[cat]] = cat ############
+        df['Category'][df['Score_cat'] == df[cat]] = cat 
         
-#df1 = pd.DataFrame({'name': ['Raphael', 'Donatello'], 'mask': ['2016-12-02', '2014-12-02'],'weapon': [1, 10]})
-#df1['Score_cat'] = df1[['mask', 'weapon']].max(axis=1)
-#df1['Category'] = None
-#df1['Category'][df['Score_cat'] == df['mask']] = "hey"
 
 ######################## Sentiment Analysis section ########################
 
 def sentiment(df): 
+    '''
+    Use VADER (a pre-trained sentiment analysis model) to categorize 
+    tweets into having a positive, negative and neutral category
+    
+    Inputs: df (df): df with tweets for which you want the sentiment 
+            
+    Output: df updated in place to include sentiement for each tweet
+    '''
     sid = SentimentIntensityAnalyzer() # Calculate neutral, negative and positive sentiment scores and label tweet with highest sentiment 
     df['sentiment'] = None #np.nan
     for idx, tweet in enumerate(df['tweet']):
         sentiment_dict = sid.polarity_scores(tweet)
         sentiment_names = ('Negative', 'Positive', 'Neutral')
         sentiment_tup = (sentiment_dict['neg'], sentiment_dict['pos'], sentiment_dict['neu'])
-        if np.any(sentiment_tup) > 0.0: # if all values are 0, leave label as nan #########
+        if np.any(sentiment_tup) > 0.0: # if all values are 0, leave label as nan
             index = sentiment_tup.index(max(sentiment_tup))
-            #print(index)
-            #print(idx)
-            df['sentiment'].iloc[[idx]] = sentiment_names[index] ############
-            #print(df['sentiment'][idx])
+            df['sentiment'].iloc[[idx]] = sentiment_names[index] 
     df['Tweets'] = df['tweet']
     df.drop(['tweet'], axis = 1, inplace = True)
