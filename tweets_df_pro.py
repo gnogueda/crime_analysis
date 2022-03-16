@@ -28,7 +28,7 @@ nest_asyncio.apply() # for working in jupyter notebooks
 stopwords = stopwords.words('english')
 stopwords = set(stopwords)
 
-# tdp.tweets_processing("tweets_output_vt", "2021") ############# year must be a string
+# tdp.tweets_processing("tweets_output", "2017") ############# year must be a string
 def tweets_processing(output_filename, year):
     df = tweets_df()
     df = df[df['date'].str.slice(stop=4) == year]
