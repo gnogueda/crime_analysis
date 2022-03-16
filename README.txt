@@ -24,7 +24,8 @@ Structure of the app:
 crime_sentiment 
 -__init__.py
 -__main__.py
--__pycache__ 
+-__pycache__
+-Capptivators Paper
 -app.py
 -dashboard
 -proj-structure
