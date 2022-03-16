@@ -43,8 +43,10 @@ stopwords = set(stopwords)
 save_dir = os.path.abspath(os.path.join(__file__ ,"../..")) + "/data/twitter/sentiment_disaggregated_results/"
 dir = os.path.abspath(os.path.join(__file__ ,"../.."))
 
+####### Example run #########
+# import tweets_df_pro as tdp
+# tdp.tweets_processing("tweets_downloads_test","tweets_output", "2017") ############# year must be a string
 
-# tdp.tweets_processing("tweets_output", "2017") ############# year must be a string
 def tweets_processing(input_directory_name, output_filename, year):
     '''
     Function to incorporate cleaning, clustering and sentiment on all 
