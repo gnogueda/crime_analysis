@@ -18,7 +18,7 @@ Use: twitter_data.tweets_scraping(twitter_data.viol_voc, day1, month1, year1, da
 
 
 
-Structure of the app: 
+## Structure of the app: 
 
 crime_sentiment 
 -__init__.py
