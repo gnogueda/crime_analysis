@@ -1,10 +1,9 @@
-Capptivators - Crime Data & Twitter Analysis by Major US City, 2005-2021
+### Crime Data & Twitter Analysis by Major US City, 2005-2021
 
 The app scrapes twitter using twint, performs cluster and sentiment analysis, merges the findings with fbi data on crimes by major US city, and creates a dash dashboard. The app is set up to run the dashboard on data that is already prepared and aggregated, but the twitter scraping and sentiment code is in the twitter folder.  
 
 
-
-To run the app: 
+## To run the app: 
 
 (1) Enter the virtual environment while you are in the proj-capptivators folder by running: source install.sh 
 (2) Enter into the crime_sentiment folder 
